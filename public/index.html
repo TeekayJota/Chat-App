@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        #chat {
+            border-radius: 8px;
+            background-color: #e0e0e0;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="text"] {
+            border: none;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #6200ee;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            padding: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background-color: #3700b3;
+        }
+
+        .message {
+            background: #6200ee;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 5px 0;
+            max-width: 70%;
+            word-wrap: break-word;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.user {
+            background: #03dac5;
+            color: #000;
+            align-self: flex-end;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat App</h1>
+    <div class="chat-container">
+        <div id="chat"></div>
+        <input type="text" id="messageInput" placeholder="Escribe un mensaje..." />
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value;
+
+            if (message.trim() === '') {
+                alert('Por favor, escribe un mensaje.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/chat/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                });
+
+                const data = await response.json();
+                displayMessage(`Tú: ${data.data}`, 'user');
+            } catch (error) {
+                console.error('Error al enviar el mensaje:', error);
+            }
+
+            messageInput.value = '';
+        }
+
+        function displayMessage(text, sender = '') {
+            const chat = document.getElementById('chat');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = text;
+            messageElement.className = `message ${sender}`;
+            chat.appendChild(messageElement);
+            chat.scrollTop = chat.scrollHeight;
+        }
+    </script>
+</body>
+</html>
